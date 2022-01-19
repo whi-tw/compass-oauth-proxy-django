@@ -1,0 +1,22 @@
+[tool.poetry]
+name = "compass-oauth-proxy-django"
+version = "0.1.0"
+description = ""
+authors = ["Tom Whitwell <tom@whi.tw>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+Django = "^4.0.1"
+requests = "^2.27.1"
+bs4 = "^0.0.1"
+django-oauth-toolkit = "^1.6.3"
+django-cors-headers = "^3.11.0"
+django-bootstrap-v5 = "^1.0.8"
+
+[tool.poetry.dev-dependencies]
+pytest = "^5.2"
+black = "^21.12b0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

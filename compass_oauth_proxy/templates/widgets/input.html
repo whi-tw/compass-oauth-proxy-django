@@ -1,0 +1,2 @@
+<input class="form-control" type="{{ widget.type }}" name="{{ widget.name }}"{% if widget.value != None %} value="{{ widget.value }}"{% endif %}placeholder="{{ widget.name }}"{% include "django/forms/widgets/attrs.html" %}>
+<label{% if widget.attrs.id %} for="{{ widget.attrs.id }}"{% endif %}>{{ widget.name | title }}</label>

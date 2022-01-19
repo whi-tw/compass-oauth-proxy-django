@@ -1,0 +1,84 @@
+{% extends 'partials/bootstrap.html' %}
+
+{% load bootstrap5 %}
+
+{% block bootstrap5_content %}
+
+{% load i18n %}
+<style>
+html,
+body {
+  height: 100%;
+}
+
+body {
+  display: flex;
+  align-items: center;
+  padding-top: 40px;
+  padding-bottom: 40px;
+  background-color: #f5f5f5;
+}
+
+.form-signin {
+  width: 100%;
+  max-width: 330px;
+  padding: 15px;
+  margin: auto;
+}
+
+.form-signin .checkbox {
+  font-weight: 400;
+}
+
+.form-signin .form-floating:focus-within {
+  z-index: 2;
+}
+
+.form-signin input[type="text"] {
+  margin-bottom: -1px;
+  border-bottom-right-radius: 0;
+  border-bottom-left-radius: 0;
+}
+
+.form-signin input[type="password"] {
+  margin-bottom: 10px;
+  border-top-left-radius: 0;
+  border-top-right-radius: 0;
+}
+</style>
+<main class="text-center form-signin">
+    {% if not error %}
+        <form id="authorizationForm" method="post">
+            <h3 class="block-center-heading">{{ application.name }} {% trans "is asking for permission" %} </h3>
+            {% csrf_token %}
+
+            {% for field in form %}
+                {% if field.is_hidden %}
+                    {{ field }}
+                {% endif %}
+            {% endfor %}
+
+            <p>{% trans "Application requires the following permissions" %}</p>
+            <ul>
+                {% for scope in scopes_descriptions %}
+                    <li>{{ scope }}</li>
+                {% endfor %}
+            </ul>
+
+            {{ form.errors }}
+            {{ form.non_field_errors }}
+
+            <div class="control-group">
+                <div class="controls">
+                    <input type="submit" class="btn btn-large" value="{% trans 'Cancel' %}"/>
+                    <input type="submit" class="btn btn-large btn-primary" name="allow" value="{% trans 'Authorize' %}"/>
+                </div>
+            </div>
+        </form>
+
+    {% else %}
+        <h2>Error: {{ error.error }}</h2>
+        <p>{{ error.description }}</p>
+    {% endif %}
+</main>
+{% endblock %}
