@@ -8,7 +8,7 @@ from .compass.profile import CompassProfile
 
 
 class CompassUser(AbstractUser):
-    member_number = models.IntegerField(editable=False, unique=True, default=-1)
+    member_number = models.IntegerField(editable=False, unique=True)
     email = models.EmailField()
     username = models.CharField(max_length=150, unique=True)
     can_create_oauth_tokens = models.BooleanField(default=False)
@@ -24,3 +24,8 @@ class CompassUser(AbstractUser):
         user.last_name = profile.surname
         user.set_unusable_password()
         return user
+
+    def created_from_compass(self):
+        if self.member_number > 0:
+            return True
+        return False

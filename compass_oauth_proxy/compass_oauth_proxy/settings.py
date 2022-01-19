@@ -33,6 +33,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INSTALLED_APPS = [
+    "oauth_proxy",
     "django.contrib.admin",
     "django.contrib.auth",
     "django.contrib.contenttypes",
@@ -43,7 +44,6 @@ INSTALLED_APPS = [
     "bootstrap5",
     "oauth2_provider",
     "corsheaders",
-    "oauth_proxy",
 ]
 
 MIDDLEWARE = [
