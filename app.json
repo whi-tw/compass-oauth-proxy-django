@@ -1,0 +1,23 @@
+{
+  "name": "Compass OAuth2 proxy",
+  "description": "Oauth proxy for logging in with Compass",
+  "repository": "https://github.com/whi-tw/compass-oauth-proxy-django",
+  "scripts": {},
+  "env": {
+    "SECRET_KEY": {
+      "required": true,
+      "generator": "secret"
+    }
+  },
+  "formation": {},
+  "addons": ["heroku-postgresql"],
+  "buildpacks": [
+    {
+      "url": "https://github.com/moneymeets/python-poetry-buildpack.git"
+    },
+    {
+      "url": "heroku/python"
+    }
+  ],
+  "stack": "heroku-20"
+}
