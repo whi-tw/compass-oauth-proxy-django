@@ -10,6 +10,7 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/4.0/ref/settings/
 """
 
+import os
 from pathlib import Path
 
 import django_heroku
@@ -74,7 +75,13 @@ TEMPLATES = [
         },
     },
 ]
-OAUTH2_PROVIDER = {"DEFAULT_SCOPES": ["read"]}
+OAUTH2_PROVIDER = {"DEFAULT_SCOPES": ["openid"]}
+OAUTH2_PROVIDER = {
+    "OIDC_ENABLED": True,
+    "SCOPES": {
+        "openid": "OpenID Connect scope",
+    },
+}
 FORM_RENDERER = "django.forms.renderers.TemplatesSetting"
 
 WSGI_APPLICATION = "compass_oauth_proxy.wsgi.application"
