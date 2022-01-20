@@ -1,14 +1,25 @@
+from datetime import datetime
+from ntpath import join
 import requests
 
-from .profile import CompassProfile
+from bs4 import BeautifulSoup
+
 from .exceptions import CompassAuthException
+
+
+class CompassProfileData:
+    member_number: int
+    forename: str
+    surname: str
+    known_as: str
+    email: str
+    join_date: datetime
 
 
 class CompassSession:
     baseurl: str = "https://compass.scouts.org.uk"
     # baseurl = "https://acdcb1e5aa8ee40de7065ecae80715ce.m.pipedream.net"
-
-    profile: CompassProfile
+    profile_data: CompassProfileData
 
     session = requests.Session()
     session.headers.update({"User-Agent": "Mozilla/5.0"})
@@ -23,7 +34,7 @@ class CompassSession:
         )
         if auth.status_code == 200 and not "<title>Compass - Failed Login" in auth.text:
             self._get("/ScoutsPortal.aspx")
-            self._populate_member_data()
+            self.fill_profile_data()
         else:
             raise CompassAuthException
 
@@ -36,12 +47,32 @@ class CompassSession:
     def _get(self, *args, **kwargs):
         return self._request("GET", *args, **kwargs)
 
-    def _populate_member_data(self):
+    def fill_profile_data(self):
+        self.profile_data = CompassProfileData()
+
         pp_profile = self._get("/MemberProfile.aspx")
-        member_no = CompassProfile.get_member_number_from_profile(pp_profile.text)
-        pp_profile_edit = self._get(
+        profile_s = BeautifulSoup(pp_profile.text, "html.parser")
+        self.profile_data.member_number = int(profile_s.find(id="myCN").get("value"))
+        join_date = profile_s.find("td", text="Date of Joining:").next_sibling.text
+        self.profile_data.join_date = datetime.strptime(join_date, "%d %B %Y")
+
+        pp_profile = self._get(
             "/Popups/Profile/EditProfile.aspx",
-            params={"StartPage": 1, "UseCN": member_no},
+            params={"StartPage": 1, "UseCN": self.profile_data.member_number},
         )
-        self.profile = CompassProfile(member_no)
-        self.profile.populate_profile_data(pp_profile_edit.text)
+        profile_s = BeautifulSoup(pp_profile.text, "html.parser")
+        self.profile_data.forename = profile_s.find(
+            id="ctl00_workarea_txt_p1_forenames"
+        ).get("data-db")
+        self.profile_data.surname = profile_s.find(
+            id="ctl00_workarea_txt_p1_surname"
+        ).get("data-db")
+        self.profile_data.known_as = profile_s.find(
+            id="ctl00_workarea_txt_p1_known_as"
+        ).get("data-db")
+        primary_email_no = profile_s.find(id="ctl00_workarea_h_txt_p2_emailp2main").get(
+            "value"
+        )
+        self.profile_data.email = profile_s.find(
+            id=f"ctl00_workarea_txt_p2_email{primary_email_no}"
+        ).get("value")

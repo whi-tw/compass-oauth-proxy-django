@@ -13,12 +13,63 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from distutils.log import Log
-from django.contrib import admin
 from django.urls import path, include
 from django.views.generic import RedirectView
+from django.contrib import admin
 from django.contrib.auth.views import LogoutView
+import oauth2_provider.views as oauth2_views
+
 from oauth_proxy import views as oauth_proxy_views
+
+oauth2_endpoint_views = [
+    path("authorize/", oauth2_views.AuthorizationView.as_view(), name="authorize"),
+    path("token/", oauth2_views.TokenView.as_view(), name="token"),
+    path("revoke-token/", oauth2_views.RevokeTokenView.as_view(), name="revoke-token"),
+]
+
+
+oauth2_app_management_views = [
+    path(
+        "applications/",
+        oauth_proxy_views.ApplicationList.as_view(),
+        name="list",
+    ),
+    path(
+        "applications/register/",
+        oauth_proxy_views.ApplicationRegistration.as_view(),
+        name="register",
+    ),
+    path(
+        "applications/<pk>/",
+        oauth_proxy_views.ApplicationDetail.as_view(),
+        name="detail",
+    ),
+    path(
+        "applications/<pk>/delete/",
+        oauth_proxy_views.ApplicationDelete.as_view(),
+        name="delete",
+    ),
+    path(
+        "applications/<pk>/update/",
+        oauth_proxy_views.ApplicationUpdate.as_view(),
+        name="update",
+    ),
+    path(
+        "logout/",
+        LogoutView.as_view(next_page="/"),
+        name="logout",
+    ),
+    path(
+        "login/",
+        oauth_proxy_views.oauth_management_login,
+        name="login",
+    ),
+    path(
+        "",
+        RedirectView.as_view(url="applications", permanent=True),
+        name="oauth_mgmt_home",
+    ),
+]
 
 urlpatterns = [
     path("admin/", admin.site.urls, name="admin"),
@@ -29,19 +80,18 @@ urlpatterns = [
     # ),
     path("accounts/", include("django.contrib.auth.urls"), name="accounts"),
     path(
-        "oauth/admin_login",
-        oauth_proxy_views.oauth_management_login,
-        name="oauth_mgmt_login",
-    ),
-    path(
-        "oauth/admin_logout",
-        LogoutView.as_view(next_page="/oauth/admin_login"),
-        name="oauth_mgmt_logout",
-    ),
-    path("oauth/", include("oauth2_provider.urls", namespace="oauth2_provider")),
-    path(
         "",
-        RedirectView.as_view(url="/oauth/admin_login", permanent=True),
-        name="oauth_mgmt_home",
+        include(
+            (oauth2_endpoint_views, "oauth2_provider"),
+            namespace="oauth2_endpoint",
+        ),
+    ),
+    path(
+        "app-management/",
+        include(
+            (oauth2_app_management_views, "oauth2_provider"),
+            "oauth2_management",
+        ),
+        name="oauth_mgmt",
     ),
 ]

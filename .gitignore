@@ -1,1 +1,3 @@
 *.sqlite3
+.env
+.test-auth.py
